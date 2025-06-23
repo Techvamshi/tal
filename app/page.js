@@ -510,38 +510,17 @@ export default function DigiceuticsDashboard() {
           ))}
         </div>
         
-        <AnimatePresence>
-          {activeProduct && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25 }}
-            >
-              <ProductCard 
-                product={activeProduct}
-                isActive={true}
-                onClick={() => setActiveProduct(null)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {!activeProduct && (
-          <div style={{
-            display: 'grid',
-            gap: '20px'
-          }}>
-            {products.map(product => (
-              <ProductCard 
-                key={product.id}
-                product={product}
-                isActive={false}
-                onClick={() => setActiveProduct(product)}
-              />
-            ))}
-          </div>
-        )}
+        <div style={{ display: 'grid', gap: '20px' }}>
+  {products.map(product => (
+    <ProductCard 
+      key={product.id}
+      product={product}
+      isActive={true} // Always expanded
+      onClick={() => {}} // Do nothing on click
+    />
+  ))}
+</div>
+
       </motion.div>
       
       <footer style={{
