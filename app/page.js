@@ -1,363 +1,546 @@
 'use client'
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function ContactSection() {
-  const [formData, setFormData] = useState({
-    name: '',
-    mobile: '',
-    email: '',
-    description: ''
-  });
+const ProductCard = ({ product, isActive, onClick }) => {
+  return (
+    <motion.div
+      onClick={onClick}
+      style={{
+        background: `linear-gradient(135deg, ${product.color} 0%, #f8f9fa 100%)`,
+        borderRadius: '20px',
+        padding: '30px',
+        cursor: 'pointer',
+        boxShadow: isActive ? `0 0 30px ${product.color}40` : '0 4px 20px rgba(0,0,0,0.08)',
+        position: 'relative',
+        overflow: 'hidden',
+        height: isActive ? '500px' : '200px',
+        transition: 'height 0.5s ease',
+        marginBottom: '20px',
+        border: '1px solid rgba(0,0,0,0.05)'
+      }}
+      whileHover={{ y: -10 }}
+    >
+      <motion.div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px'
+        }}
+      >
+        <h3 style={{
+          fontSize: '24px',
+          fontWeight: '700',
+          color: '#2d3748',
+          margin: '0'
+        }}>{product.title}</h3>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: product.color,
+          fontSize: '20px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        }}>
+          {product.icon}
+        </div>
+      </motion.div>
+      
+      <p style={{
+        color: '#4a5568',
+        fontSize: '16px',
+        marginBottom: '20px'
+      }}>{product.tagline}</p>
+      
+      <AnimatePresence>
+        {isActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '20px',
+              marginBottom: '30px'
+            }}>
+              {product.features.map((feature, i) => (
+                <div key={i} style={{
+                  background: 'rgba(255,255,255,0.7)',
+                  padding: '15px',
+                  borderRadius: '10px',
+                  backdropFilter: 'blur(5px)',
+                  boxShadow: '0 2px 15px rgba(0,0,0,0.05)',
+                  border: '1px solid rgba(0,0,0,0.05)'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '10px'
+                  }}>
+                    <div style={{
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '50%',
+                      background: product.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: '10px',
+                      flexShrink: '0'
+                    }}>
+                      <span style={{ color: '#fff', fontSize: '14px' }}>{i+1}</span>
+                    </div>
+                    <h4 style={{
+                      color: '#2d3748',
+                      margin: '0',
+                      fontSize: '16px'
+                    }}>{feature.title}</h4>
+                  </div>
+                  <p style={{
+                    color: '#4a5568',
+                    fontSize: '14px',
+                    margin: '0',
+                    marginLeft: '40px'
+                  }}>{feature.description}</p>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              gap: '15px',
+              marginTop: 'auto'
+            }}>
+              <motion.button
+                style={{
+                  padding: '12px 25px',
+                  background: product.color,
+                  border: 'none',
+                  borderRadius: '50px',
+                  color: '#ffffff',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  boxShadow: `0 4px 15px ${product.color}60`
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Request Demo
+              </motion.button>
+              <motion.button
+                style={{
+                  padding: '12px 25px',
+                  background: 'transparent',
+                  border: `1px solid ${product.color}`,
+                  borderRadius: '50px',
+                  color: product.color,
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+                whileHover={{ background: `${product.color}10` }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Documentation
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        right: '20px',
+        fontSize: '12px',
+        color: '#718096'
+      }}>
+        {product.id}
+      </div>
+    </motion.div>
+  );
+};
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
+const FloatingOrbs = ({ activeProduct }) => {
+  const [orbs, setOrbs] = useState([]);
+
+  useEffect(() => {
+    const newOrbs = Array.from({ length: 5 }).map(() => ({
+      width: `${Math.random() * 200 + 100}px`,
+      height: `${Math.random() * 200 + 100}px`,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      x: (Math.random() - 0.5) * 100,
+      y: (Math.random() - 0.5) * 100,
+      duration: Math.random() * 20 + 10,
     }));
-  };
+    setOrbs(newOrbs);
+  }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add your form submission logic here
-    console.log('Form submitted:', formData);
-    alert('Thank you for your message! We will contact you soon.');
-  };
+  // Prevent rendering until client-side
+  if (orbs.length === 0) return null;
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      zIndex: -1,
+      overflow: 'hidden',
+      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
+    }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <motion.div
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${Math.random() * 200 + 100}px`,
+            height: `${Math.random() * 200 + 100}px`,
+            borderRadius: '50%',
+            background: activeProduct 
+              ? `radial-gradient(circle, ${activeProduct.color}10 0%, transparent 70%)`
+              : 'radial-gradient(circle, #5B7DB110 0%, transparent 70%)',
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            filter: 'blur(40px)'
+          }}
+          animate={{
+            x: [0, (Math.random() - 0.5) * 100],
+            y: [0, (Math.random() - 0.5) * 100],
+          }}
+          transition={{
+            duration: Math.random() * 20 + 10,
+            repeat: Infinity,
+            repeatType: 'reverse'
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default function DigiceuticsDashboard() {
+  const [activeProduct, setActiveProduct] = useState(null);
+  
+  const products = [
+    {
+      id: 'ideateX',
+      title: 'ideateX',
+      tagline: 'Transforming ideas into winning businesses - NextGen digital ideation lab',
+      icon: '💡',
+      color: '#00CECB',
+      features: [
+        {
+          title: 'Step-by-step ideation',
+          description: 'Guided process from concept to business plan'
+        },
+        {
+          title: 'Business Canvas',
+          description: 'Structured templates for business modeling'
+        },
+        {
+          title: 'Validation Engine',
+          description: 'Data-driven go/no-go decision making'
+        },
+        {
+          title: 'Financial Planning',
+          description: 'Revenue, expenses, cashflow and profit calculations'
+        },
+        {
+          title: 'Program Management',
+          description: 'End-to-end idea development tracking'
+        },
+        {
+          title: 'All-in-One Solution',
+          description: '360-degree view of your business concept'
+        }
+      ]
+    },
+    {
+      id: 'iQLIMS',
+      title: 'iQLIMS',
+      tagline: 'Modern laboratory informatics for improved QC/QA and data management',
+      icon: '🔬',
+      color: '#FFC145',
+      features: [
+        {
+          title: 'E2E Diagnostic Solution',
+          description: 'Complete workflow from sample to report'
+        },
+        {
+          title: 'Clinical Trial Management',
+          description: 'Specialized tools for research labs'
+        },
+        {
+          title: 'Compliance Analytics',
+          description: 'Protocol analysis with automated alerts'
+        },
+        {
+          title: 'Modular Informatics',
+          description: 'Flexible MMIS architecture'
+        },
+        {
+          title: 'Workflow Automation',
+          description: 'Increased lab productivity'
+        },
+        {
+          title: 'Regulatory Compliance',
+          description: '21 CFR Part 11, HIPAA, HL7 ready'
+        }
+      ]
+    },
+    {
+      id: 'IoMT',
+      title: 'IoMT',
+      tagline: 'Secure medical device connectivity for healthcare automation',
+      icon: '⚕️',
+      color: '#A05EB5',
+      features: [
+        {
+          title: 'Universal Connectivity',
+          description: 'RS232, WIFI, Bluetooth, USB, RJ45'
+        },
+        {
+          title: 'Secure Middleware',
+          description: 'Encrypted device-to-application communication'
+        },
+        {
+          title: 'Offline Storage',
+          description: 'Data persistence without network'
+        },
+        {
+          title: 'Protocol Translation',
+          description: 'Bridging diverse medical devices'
+        },
+        {
+          title: 'Healthcare Automation',
+          description: 'Environmental monitoring solutions'
+        },
+        {
+          title: 'Reliable Transmission',
+          description: 'Guaranteed data delivery'
+        }
+      ]
+    },
+    {
+      id: 'iQFORMS',
+      title: 'iQFORMS',
+      tagline: 'Cloud-based forms solution for clinical research and patient management',
+      icon: '📋',
+      color: '#5B7DB1',
+      features: [
+        {
+          title: 'Real World EDC/eCRF',
+          description: 'Electronic data capture for research'
+        },
+        {
+          title: 'Site Management',
+          description: 'Tools for SMO operations'
+        },
+        {
+          title: 'Patient Wellness',
+          description: 'Integrated patient solutions'
+        },
+        {
+          title: 'AI Analytics',
+          description: 'Data models and insights'
+        },
+        {
+          title: 'Cloud Architecture',
+          description: 'Single-stack simplified IT'
+        },
+        {
+          title: 'Regulatory Ready',
+          description: 'Compliant data collection'
+        }
+      ]
+    },
+    {
+      id: 'aiotroniX',
+      title: 'aiotroniX',
+      tagline: 'Industrial IoT automation for smart factories and intelligent systems',
+      icon: '🏭',
+      color: '#FF5E5B',
+      features: [
+        {
+          title: 'Industrial Automation',
+          description: 'IIoT for smart manufacturing'
+        },
+        {
+          title: 'Real-time Monitoring',
+          description: 'Equipment and process tracking'
+        },
+        {
+          title: 'Predictive Analytics',
+          description: 'AI-driven operational insights'
+        },
+        {
+          title: 'Single-stack Architecture',
+          description: 'Unified device management'
+        },
+        {
+          title: 'Process Optimization',
+          description: 'Efficiency and productivity gains'
+        },
+        {
+          title: 'Safety Systems',
+          description: 'Adaptive risk mitigation'
+        }
+      ]
+    }
+  ];
 
   return (
     <div style={{
-      padding: '80px 20px',
-      background: 'radial-gradient(circle at 10% 20%, #1a1a2e 0%, #16213e 100%)',
-      color: '#ffffff',
-      fontFamily: "'Inter', sans-serif"
+      minHeight: '100vh',
+      padding: '40px',
+      color: '#2d3748',
+      fontFamily: "'Inter', sans-serif",
+      background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
     }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '50px',
-        alignItems: 'center'
+      <FloatingOrbs activeProduct={activeProduct} />
+      
+      <header style={{
+        marginBottom: '50px',
+        textAlign: 'center'
       }}>
-        {/* Left Side - Contact Info */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 style={{
-            fontSize: '36px',
-            fontWeight: '700',
-            marginBottom: '20px',
-            background: '-webkit-linear-gradient(45deg, #00CECB, #5B7DB1)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
-            Ready to Get Started?
-          </h2>
-          <h3 style={{
-            fontSize: '24px',
-            fontWeight: '600',
-            marginBottom: '30px',
-            color: '#ffffff'
-          }}>
-            Drop Us a Line
-          </h3>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: '1.6',
-            color: '#ffffffcc',
-            marginBottom: '40px'
-          }}>
-            Have questions or ready to get started? Our team is here to help. Contact us today to discuss your IT needs, request a consultation or inquire about our services.
-          </p>
-
-          <div style={{
-            display: 'grid',
-            gap: '30px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '15px'
-            }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #00CECB 0%, #005B5A 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: '0'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="white"/>
-                </svg>
-              </div>
-              <div>
-                <h4 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  margin: '0 0 5px 0',
-                  color: '#ffffff'
-                }}>Address</h4>
-                <p style={{
-                  margin: '0',
-                  color: '#ffffffaa',
-                  lineHeight: '1.5'
-                }}>
-                  #10, 3rd Main Road, SK Nagar,<br />
-                  Nandini Layout (PO),<br />
-                  Bengaluru - 560096 | Karnataka | INDIA
-                </p>
-              </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '15px'
-            }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #FFC145 0%, #B3872E 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: '0'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20.01 15.38C18.78 15.38 17.59 15.18 16.48 14.82C16.13 14.7 15.74 14.79 15.47 15.06L13.9 17.03C11.07 15.68 8.42 13.13 7.01 10.2L8.96 8.54C9.23 8.26 9.31 7.87 9.2 7.52C8.83 6.41 8.64 5.22 8.64 3.99C8.64 3.45 8.19 3 7.65 3H4.19C3.65 3 3 3.24 3 3.99C3 13.28 10.73 21 20.01 21C20.72 21 21 20.37 21 19.82V16.37C21 15.83 20.55 15.38 20.01 15.38Z" fill="white"/>
-                </svg>
-              </div>
-              <div>
-                <h4 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  margin: '0 0 5px 0',
-                  color: '#ffffff'
-                }}>Call</h4>
-                <p style={{
-                  margin: '0',
-                  color: '#ffffffaa',
-                  lineHeight: '1.5'
-                }}>
-                  +919741523915<br />
-                  9343371670
-                </p>
-              </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '15px'
-            }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #A05EB5 0%, #5E3B6A 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: '0'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="white"/>
-                </svg>
-              </div>
-              <div>
-                <h4 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  margin: '0 0 5px 0',
-                  color: '#ffffff'
-                }}>Email us today</h4>
-                <p style={{
-                  margin: '0',
-                  color: '#ffffffaa',
-                  lineHeight: '1.5'
-                }}>
-                  talankadmin@talankglobal.com
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Right Side - Contact Form */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
+        <motion.h1 
           style={{
-            background: '#ffffff08',
-            borderRadius: '20px',
-            padding: '40px',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid #ffffff10',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)'
+            fontSize: '48px',
+            fontWeight: '800',
+            marginBottom: '20px',
+            background: activeProduct 
+              ? `-webkit-linear-gradient(45deg, ${activeProduct.color}, #2d3748)`
+              : '-webkit-linear-gradient(45deg, #00CECB, #5B7DB1)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            lineHeight: '1.2'
           }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <h3 style={{
-            fontSize: '24px',
-            fontWeight: '600',
-            marginBottom: '30px',
-            color: '#ffffff',
-            textAlign: 'center'
-          }}>
-            Contact Us
-          </h3>
-          
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                color: '#ffffffcc'
-              }}>
-                Name (required)
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffffff20',
-                  background: '#ffffff05',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease'
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                color: '#ffffffcc'
-              }}>
-                Mobile Number (required)
-              </label>
-              <input
-                type="tel"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffffff20',
-                  background: '#ffffff05',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease'
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                color: '#ffffffcc'
-              }}>
-                Email (required)
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffffff20',
-                  background: '#ffffff05',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease'
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '30px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                color: '#ffffffcc'
-              }}>
-                Brief Description about your requirement (required)
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                rows="4"
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffffff20',
-                  background: '#ffffff05',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease',
-                  resize: 'vertical'
-                }}
-              />
-            </div>
-
-            <motion.button
-              type="submit"
+          Digiceutics Product Ecosystem
+        </motion.h1>
+        <motion.p
+          style={{
+            fontSize: '18px',
+            color: '#4a5568',
+            maxWidth: '700px',
+            margin: '0 auto'
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          Five integrated solutions powering the future of digital healthcare and industrial automation
+        </motion.p>
+      </header>
+      
+      <motion.div 
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          position: 'relative'
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+      >
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '30px',
+          marginBottom: '40px'
+        }}>
+          {products.map(product => (
+            <motion.div
+              key={product.id}
               style={{
-                width: '100%',
-                padding: '15px',
-                borderRadius: '8px',
-                border: 'none',
-                background: 'linear-gradient(135deg, #FF5E5B 0%, #A02E2C 100%)',
-                color: '#ffffff',
-                fontSize: '16px',
-                fontWeight: '600',
+                background: 'rgba(255,255,255,0.7)',
+                borderRadius: '15px',
+                padding: '20px',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease'
+                border: activeProduct?.id === product.id 
+                  ? `2px solid ${product.color}`
+                  : '2px solid rgba(0,0,0,0.05)',
+                backdropFilter: 'blur(5px)',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
               }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ 
+                y: -5,
+                background: 'rgba(255,255,255,0.9)'
+              }}
+              onClick={() => setActiveProduct(product)}
             >
-              Submit Now
-            </motion.button>
-          </form>
-        </motion.div>
-      </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '15px'
+              }}>
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '15px',
+                  background: product.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '15px',
+                  fontSize: '24px',
+                  color: '#ffffff',
+                  boxShadow: `0 4px 15px ${product.color}60`
+                }}>
+                  {product.icon}
+                </div>
+                <h3 style={{
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  margin: '0',
+                  color: '#2d3748'
+                }}>{product.title}</h3>
+              </div>
+              <p style={{
+                color: '#4a5568',
+                fontSize: '14px',
+                margin: '0'
+              }}>{product.tagline}</p>
+            </motion.div>
+          ))}
+        </div>
+        
+        <div style={{ display: 'grid', gap: '20px' }}>
+  {products.map(product => (
+    <ProductCard 
+      key={product.id}
+      product={product}
+      isActive={true} // Always expanded
+      onClick={() => {}} // Do nothing on click
+    />
+  ))}
+</div>
+
+      </motion.div>
+      
+      <footer style={{
+        marginTop: '80px',
+        textAlign: 'center',
+        color: '#718096',
+        fontSize: '14px'
+      }}>
+        <p>© {new Date().getFullYear()} Digiceutics. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
